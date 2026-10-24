@@ -59,6 +59,31 @@ class WeatherViewTests(TestCase):
         self.assertContains(response, "JP")
         self.assertEqual(mock_get.call_args.kwargs["params"]["q"], "Tokyo")
         self.assertEqual(mock_get.call_args.kwargs["params"]["units"], "metric")
+        self.assertContains(response, "Feels like")
+        self.assertContains(response, "20.8")
+        self.assertContains(response, "Humidity")
+        self.assertContains(response, "60%")
+        self.assertContains(response, "Wind")
+        self.assertContains(response, "3.6 m/s")
+        self.assertContains(response, "weather/style.css")
+
+    @patch.dict(os.environ, {"OPENWEATHER_API_KEY": TEST_KEY})
+    @patch("weather.views.requests.get")
+    def test_optional_metrics_hidden_when_missing(self, mock_get):
+        payload = {
+            "name": "Tokyo",
+            "sys": {"country": "JP"},
+            "main": {"temp": 21.5},
+            "weather": [{"description": "clear sky", "icon": "01d"}],
+        }
+        mock_get.return_value = self.make_response(payload=payload)
+
+        response = self.client.get(self.url, {"city": "Tokyo"})
+
+        self.assertContains(response, "21.5")
+        self.assertNotContains(response, "Feels like")
+        self.assertNotContains(response, "Humidity")
+        self.assertNotContains(response, "Wind")
 
     @patch.dict(os.environ, {"OPENWEATHER_API_KEY": ""})
     @patch("weather.views.requests.get")

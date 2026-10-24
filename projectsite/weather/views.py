@@ -43,12 +43,17 @@ def fetch_weather(city, api_key):
         )
         response.raise_for_status()
         data = response.json()
+        main = data["main"]
+        condition = data["weather"][0]
         return {
             "city": data["name"],
             "country": data["sys"]["country"],
-            "temp": data["main"]["temp"],
-            "description": data["weather"][0]["description"].title(),
-            "icon": data["weather"][0]["icon"],
+            "temp": main["temp"],
+            "feels_like": main.get("feels_like"),
+            "humidity": main.get("humidity"),
+            "wind": data.get("wind", {}).get("speed"),
+            "description": condition["description"].title(),
+            "icon": condition["icon"],
         }
     except requests.exceptions.HTTPError as exc:
         status_code = exc.response.status_code if exc.response is not None else None

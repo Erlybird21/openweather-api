@@ -1,28 +1,85 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Weather Dashboard</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2em; text-align: center; }
-    img { max-width: 80%; border-radius: 10px; margin-top: 1em; }
-    .error { color: red; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenWeather</title>
+  <link rel="stylesheet" href="{% static 'weather/style.css' %}" />
 </head>
 <body>
-  <h1>Weather Dashboard</h1>
-  <form method="get">
-    <input type="text" name="city" placeholder="Enter city name" value="{{ city }}" />
-    <button type="submit">Search</button>
-  </form>
-  
-  {% if weather.error %}
-    <p class="error">{{ weather.error }}</p>
-  {% else %}
-    <h2>{{ weather.city }}, {{ weather.country }}</h2>
-    <p><img src="https://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" alt="icon" /></p>
-    <p><strong>{{ weather.temp }} °C</strong></p>
-    <p>{{ weather.description }}</p>
-  {% endif %}
+  <main class="app">
+    <header class="app__header">
+      <p class="app__brand">OpenWeather</p>
+      <h1 class="app__title">Weather dashboard</h1>
+      <p class="app__subtitle">Search any city for its current conditions.</p>
+    </header>
+
+    <form class="search" method="get" role="search">
+      <label class="sr-only" for="city">City name</label>
+      <input
+        class="search__input"
+        id="city"
+        type="text"
+        name="city"
+        placeholder="Enter a city name"
+        value="{{ city }}"
+        autocomplete="off"
+      />
+      <button class="search__button" type="submit">Search</button>
+    </form>
+
+    {% if weather.error %}
+      <section class="card card--error" role="alert">
+        <h2 class="card__error-title">Something went wrong</h2>
+        <p class="card__error-text">{{ weather.error }}</p>
+        <p class="card__error-hint">Try another city, or check the setup if the problem continues.</p>
+      </section>
+    {% else %}
+      <section class="card card--current">
+        <div class="current">
+          <div class="current__icon-wrap">
+            <img
+              class="current__icon"
+              src="https://openweathermap.org/img/wn/{{ weather.icon }}@4x.png"
+              alt="{{ weather.description }}"
+              width="112"
+              height="112"
+            />
+          </div>
+          <div class="current__main">
+            <p class="current__place">{{ weather.city }}, {{ weather.country }}</p>
+            <p class="current__temp">{{ weather.temp }}<span class="current__unit">°C</span></p>
+            <p class="current__desc">{{ weather.description }}</p>
+          </div>
+        </div>
+
+        {% if weather.feels_like is not None or weather.humidity is not None or weather.wind is not None %}
+          <div class="metrics">
+            {% if weather.feels_like is not None %}
+              <article class="metric">
+                <p class="metric__label">Feels like</p>
+                <p class="metric__value">{{ weather.feels_like }} °C</p>
+              </article>
+            {% endif %}
+            {% if weather.humidity is not None %}
+              <article class="metric">
+                <p class="metric__label">Humidity</p>
+                <p class="metric__value">{{ weather.humidity }}%</p>
+              </article>
+            {% endif %}
+            {% if weather.wind is not None %}
+              <article class="metric">
+                <p class="metric__label">Wind</p>
+                <p class="metric__value">{{ weather.wind }} m/s</p>
+              </article>
+            {% endif %}
+          </div>
+        {% endif %}
+      </section>
+    {% endif %}
+
+    <footer class="app__footer">Weather data from OpenWeather</footer>
+  </main>
 </body>
 </html>
