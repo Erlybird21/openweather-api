@@ -69,6 +69,17 @@ class WeatherViewTests(TestCase):
 
     @patch.dict(os.environ, {"OPENWEATHER_API_KEY": TEST_KEY})
     @patch("weather.views.requests.get")
+    def test_dashboard_brand_and_search_label(self, mock_get):
+        mock_get.return_value = self.make_response()
+
+        response = self.client.get(self.url, {"city": "Tokyo"})
+
+        self.assertContains(response, "OpenWeather")
+        self.assertContains(response, "Weather at a glance")
+        self.assertContains(response, 'for="city"')
+
+    @patch.dict(os.environ, {"OPENWEATHER_API_KEY": TEST_KEY})
+    @patch("weather.views.requests.get")
     def test_optional_metrics_hidden_when_missing(self, mock_get):
         payload = {
             "name": "Tokyo",

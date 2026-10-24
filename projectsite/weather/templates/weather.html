@@ -8,75 +8,116 @@
   <link rel="stylesheet" href="{% static 'weather/style.css' %}" />
 </head>
 <body>
+  <div class="atmosphere" aria-hidden="true"></div>
+
   <main class="app">
     <header class="app__header">
-      <p class="app__brand">OpenWeather</p>
-      <h1 class="app__title">Weather dashboard</h1>
-      <p class="app__subtitle">Search any city for its current conditions.</p>
+      <span class="brand-mark" aria-hidden="true">
+        <span class="brand-mark__sun"></span>
+        <span class="brand-mark__cloud"></span>
+      </span>
+      <div class="app__identity">
+        <p class="app__brand">OpenWeather</p>
+        <p class="app__tagline">Weather at a glance</p>
+      </div>
     </header>
 
     <form class="search" method="get" role="search">
-      <label class="sr-only" for="city">City name</label>
-      <input
-        class="search__input"
-        id="city"
-        type="text"
-        name="city"
-        placeholder="Enter a city name"
-        value="{{ city }}"
-        autocomplete="off"
-      />
-      <button class="search__button" type="submit">Search</button>
+      <label class="search__label" for="city">City</label>
+      <div class="search__bar">
+        <svg class="search__icon" aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+        </svg>
+        <input
+          class="search__input"
+          id="city"
+          type="text"
+          name="city"
+          placeholder="Enter a city name"
+          value="{{ city }}"
+          autocomplete="off"
+        />
+        <button class="search__button" type="submit">Search</button>
+      </div>
     </form>
 
     {% if weather.error %}
-      <section class="card card--error" role="alert">
-        <h2 class="card__error-title">Something went wrong</h2>
-        <p class="card__error-text">{{ weather.error }}</p>
-        <p class="card__error-hint">Try another city, or check the setup if the problem continues.</p>
+      <section class="panel panel--error" role="alert">
+        <span class="error-mark" aria-hidden="true">!</span>
+        <div class="error-body">
+          <h2 class="error-title">Something went wrong</h2>
+          <p class="error-text">{{ weather.error }}</p>
+          <p class="error-hint">Try another city, or check the setup if the problem continues.</p>
+        </div>
       </section>
     {% else %}
-      <section class="card card--current">
-        <div class="current">
-          <div class="current__icon-wrap">
+      <section class="panel panel--sky" aria-label="Current weather">
+        <span class="sky-glow" aria-hidden="true"></span>
+        <div class="sky-content">
+          <div class="sky-info">
+            <p class="sky-place">{{ weather.city }}, {{ weather.country }}</p>
+            <p class="sky-temp">{{ weather.temp }}<span class="sky-unit">°C</span></p>
+            <p class="sky-condition">{{ weather.description }}</p>
+          </div>
+          <div class="sky-icon-wrap">
             <img
-              class="current__icon"
+              class="sky-icon"
               src="https://openweathermap.org/img/wn/{{ weather.icon }}@4x.png"
               alt="{{ weather.description }}"
-              width="112"
-              height="112"
+              width="140"
+              height="140"
             />
           </div>
-          <div class="current__main">
-            <p class="current__place">{{ weather.city }}, {{ weather.country }}</p>
-            <p class="current__temp">{{ weather.temp }}<span class="current__unit">°C</span></p>
-            <p class="current__desc">{{ weather.description }}</p>
-          </div>
         </div>
-
-        {% if weather.feels_like is not None or weather.humidity is not None or weather.wind is not None %}
-          <div class="metrics">
-            {% if weather.feels_like is not None %}
-              <article class="metric">
-                <p class="metric__label">Feels like</p>
-                <p class="metric__value">{{ weather.feels_like }} °C</p>
-              </article>
-            {% endif %}
-            {% if weather.humidity is not None %}
-              <article class="metric">
-                <p class="metric__label">Humidity</p>
-                <p class="metric__value">{{ weather.humidity }}%</p>
-              </article>
-            {% endif %}
-            {% if weather.wind is not None %}
-              <article class="metric">
-                <p class="metric__label">Wind</p>
-                <p class="metric__value">{{ weather.wind }} m/s</p>
-              </article>
-            {% endif %}
-          </div>
-        {% endif %}
       </section>
+
+      {% if weather.feels_like is not None or weather.humidity is not None or weather.wind is not None %}
+        <section class="tiles" aria-label="Weather details">
+          {% if weather.feels_like is not None %}
+            <article class="tile">
+              <span class="tile__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0Z"></path>
+                  <line x1="12" y1="9" x2="12" y2="14"></line>
+                </svg>
+              </span>
+              <div class="tile__body">
+                <p class="tile__label">Feels like</p>
+                <p class="tile__value">{{ weather.feels_like }} °C</p>
+              </div>
+            </article>
+          {% endif %}
+          {% if weather.humidity is not None %}
+            <article class="tile">
+              <span class="tile__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3s6 6.2 6 10a6 6 0 0 1-12 0c0-3.8 6-10 6-10Z"></path>
+                </svg>
+              </span>
+              <div class="tile__body">
+                <p class="tile__label">Humidity</p>
+                <p class="tile__value">{{ weather.humidity }}%</p>
+              </div>
+            </article>
+          {% endif %}
+          {% if weather.wind is not None %}
+            <article class="tile">
+              <span class="tile__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 8h11a3 3 0 1 0-3-3"></path>
+                  <path d="M3 12h15a3 3 0 1 1-3 3"></path>
+                  <path d="M3 16h7"></path>
+                </svg>
+              </span>
+              <div class="tile__body">
+                <p class="tile__label">Wind</p>
+                <p class="tile__value">{{ weather.wind }} m/s</p>
+              </div>
+            </article>
+          {% endif %}
+        </section>
+      {% endif %}
     {% endif %}
 
     <footer class="app__footer">Weather data from OpenWeather</footer>
